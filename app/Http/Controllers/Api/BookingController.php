@@ -61,28 +61,24 @@ class BookingController extends Controller
                     $q->where('city', 'like', '%'.$search['q'].'%')->orWhere('state', 'like', '%'.$search['q'].'%')->orWhere('country', 'like', '%'.$search['q'].'%');
                 })->get();
 
-                $query = $query->whereIn('destination_id', $des_query->pluck('id'));
-                                        
+                $query = $query->orWhereIn('destination_id', $des_query->pluck('id'));     
             }
 
             //one terminal is already picked, get the other one
             if(!empty($request->terminal)){
                 $search['terminal'] = $request->terminal;
-                $search['mode'] = (empty($request->mode) || $request->mode == 'from')? 'terminal_from' : 'terminal_to';
-                $search['mode_result'] = $search['mode'] == 'terminal_to'? 'terminal_from' : 'terminal_to';
 
-                                        
-                $des_query = BusDestination::where($search['mode'], $search['terminal'])->get();
-                $query = $query->whereIn('id', $des_query->pluck($search['mode_result']));
+                //todo: select by bus
+                $query = $query->where('id', '<>', $search['terminal']);
 
             }
 
             $total_cnt = $query->count();
 
             $terminals =  $query->with(['destination' => function ($q){
-                $q->select('city', 'state', 'country');
+                $q->select('id', 'city', 'state', 'country');
             }])->take($limit)->skip($offset)->get();
-           
+
             return response()->json([
                 'data' => $terminals,
                 'page_count' => $terminals->count(),
