@@ -23,3 +23,9 @@ Route::get('/', function(Request $request){
 
 Route::post('login', 'Api\AuthController@login');
 Route::post('register', 'Api\AuthController@register');
+
+Route::post('profile/photo', 'Api\UserController@photo');
+Route::post('profile/update', 'Api\UserController@update');
+
+Route::get('booking/buses', 'Api\BookingController@buses');
+Route::get('booking/terminals', 'Api\BookingController@terminals');
